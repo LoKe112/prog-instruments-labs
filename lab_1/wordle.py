@@ -1,11 +1,15 @@
-import tkinter as tk
-from PIL import Image, ImageTk
-import ctypes
-import words_api
-import settings as st
 import os
+
+import ctypes
+import tkinter as tk
 import sqlite3
+import words_api
+
+import settings as st
+
+from PIL import Image, ImageTk
 from typing import Optional, List
+
 
 ctypes.windll.shcore.SetProcessDpiAwareness(1)
 
