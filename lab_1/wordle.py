@@ -1,5 +1,4 @@
 import os
-
 import ctypes
 import tkinter as tk
 import sqlite3
@@ -10,16 +9,30 @@ import settings as st
 from PIL import Image, ImageTk
 from typing import Optional, List
 
-
 ctypes.windll.shcore.SetProcessDpiAwareness(1)
 
 
 class Wordle:
+    """
+    Класс для реализации игры Wordle с графическим интерфейсом на Tkinter.
+
+    Атрибуты:
+        FIRST_RIGHT (int): Константа, устанавливающая количество очков за правильный ответ.
+        BG (str): Цвет фона интерфейса.
+        MAX_SCORE (int): Максимальное количество очков, которое можно получить за игру.
+    """
+
     FIRST_RIGHT = 10
     BG = "#171717"
     MAX_SCORE = 12
 
     def __init__(self) -> None:
+        """
+        Инициализация класса Wordle.
+
+        Создает главное окно игры, инициализирует необходимые параметры и элементы интерфейса.
+        Загружает настройки из базы данных и загружает изображения для интерфейса.
+        """
         self.root = tk.Tk()
 
         self.width = 600
@@ -145,6 +158,11 @@ class Wordle:
         self.root.mainloop()
 
     def show_buttons(self) -> None:
+        """
+        Отображает кнопки для ввода слов в игре.
+
+        Удаляет старые кнопки, если они существуют, и создает новые для текущей игры.
+        """
         if self.buttons:
             for b in self.buttons:
                 if b:
@@ -169,6 +187,13 @@ class Wordle:
             self.buttons.append(row_btn)
 
     def key_press(self, e: Optional[tk.Event] = None, keyboard: Optional[tk.Button] = None) -> None:
+        """
+        Обрабатывает нажатия клавиш на клавиатуре или кнопках интерфейса.
+
+        Args:
+            e (Optional[tk.Event]): Событие нажатия клавиши.
+            keyboard (Optional[tk.Button]): Кнопка, на которую нажали на клавиатуре.
+        """
         if e:
             if e.keysym == "BackSpace":
                 self.erase_character()
@@ -210,6 +235,9 @@ class Wordle:
                 self.current_b += 1
 
     def erase_character(self) -> None:
+        """
+        Удаляет последний введенный символ из текущего ввода.
+        """
         if self.current_b > 0:
             self.current_b -= 1
             self.guess = self.guess[0: self.current_b]
@@ -218,6 +246,11 @@ class Wordle:
             self.buttons[self.current_B_row][self.current_b]["text"] = ""
 
     def check_for_match(self) -> None:
+        """
+        Проверяет введенное слово на совпадение с загаданным словом.
+
+        Обновляет интерфейс в зависимости от результатов проверки (цвета кнопок и т.д.).
+        """
         print("guess = ", self.guess)
         if len(self.guess) == self.word_size:
             self.guess_count += 1
@@ -280,6 +313,13 @@ class Wordle:
             self.guess = ""
 
     def reset(self, popup: Optional[tk.Toplevel] = None, keypad: Optional[tk.Button] = None) -> None:
+        """
+        Сбрасывает состояние игры.
+
+        Args:
+            popup (Optional[tk.Toplevel]): Окно всплывающего сообщения о завершении игры.
+            keypad (Optional[tk.Button]): Кнопка на клавиатуре, вызвавшая сброс.
+        """
         if not keypad:
             for buttons_list in self.buttons:
                 for button in buttons_list:
@@ -308,6 +348,9 @@ class Wordle:
             popup.destroy()
 
     def show_popup(self) -> None:
+        """
+        Отображает всплывающее окно с результатами игры (выигрыш или проигрыш).
+        """
         popup = tk.Toplevel()
         popup.title("Game Over")
 
@@ -350,6 +393,15 @@ class Wordle:
         popup.protocol("WM_DELETE_WINDOW", close)
 
     def change_keypad_color(self, color: str, guess: str, on_hover_color: Optional[str] = None, off_hover_color: Optional[str] = None) -> None:
+        """
+        Изменяет цвет кнопок на клавиатуре в зависимости от состояния игры.
+
+        Args:
+            color (str): Цвет, который нужно установить для кнопок.
+            guess (str): Введенное слово для проверки.
+            on_hover_color (Optional[str]): Цвет кнопки при наведении.
+            off_hover_color (Optional[str]): Цвет кнопки при отсутствии наведения.
+        """
         for char in guess:
             if 65 <= ord(char) <= 70:
                 btn_frame_index = 0
@@ -371,6 +423,9 @@ class Wordle:
                 self.keypad_buttons[btn_frame_index][btn_index].bind("<Leave>", lambda e: off_hover(e, off_hover_color))
 
     def get_from_db(self) -> None:
+        """
+        Получает настройки игры из базы данных или создает новую, если она не существует.
+        """
         if not os.path.exists("settings.db"):
             connection = sqlite3.connect("settings.db")
             cursor = connection.cursor()
@@ -397,6 +452,9 @@ class Wordle:
             connection.close()
 
     def update_high_score(self) -> None:
+        """
+        Обновляет рекордный счет в базе данных.
+        """
         connection = sqlite3.connect("settings.db")
         cursor = connection.cursor()
 
@@ -408,26 +466,56 @@ class Wordle:
         connection.close()
 
     def open_setting(self) -> None:
+        """
+        Открывает окно настроек игры.
+        """
         setting = st.Settings(self)
 
     def on_hover(self, e: tk.Event) -> None:
+        """
+        Обрабатывает событие наведения мыши на элемент интерфейса.
+
+        Args:
+            e (tk.Event): Событие наведения мыши.
+        """
         widget = e.widget
         widget["image"] = self.setting_dark
 
     def off_hover(self, e: tk.Event) -> None:
+        """
+        Обрабатывает событие ухода мыши с элемента интерфейса.
+
+        Args:
+            e (tk.Event): Событие ухода мыши.
+        """
         widget = e.widget
         widget["image"] = self.setting
 
 
 def on_hover(e: tk.Event, color: str) -> None:
+    """
+    Изменяет цвет кнопки при наведении.
+
+    Args:
+        e (tk.Event): Событие наведения мыши.
+        color (str): Цвет, который нужно установить для кнопки.
+    """
     button = e.widget
     button["bg"] = color
 
 
 def off_hover(e: tk.Event, color: str) -> None:
+    """
+    Возвращает цвет кнопки при уходе мыши.
+
+    Args:
+        e (tk.Event): Событие ухода мыши.
+        color (str): Цвет, который нужно установить для кнопки.
+    """
     button = e.widget
     button["bg"] = color
 
 
 if __name__ == '__main__':
     Wordle()
+
