@@ -2,14 +2,14 @@ import os
 import ctypes
 import tkinter as tk
 import sqlite3
-import words_api
-
-import settings as st
-
-from PIL import Image, ImageTk
 from typing import Optional, List
 
+import words_api
+from PIL import Image, ImageTk
+
+import settings as st
 from config import WIDTH, HEIGHT, FIRST_RIGHT, BG, MAX_SCORE
+
 
 ctypes.windll.shcore.SetProcessDpiAwareness(1)
 
